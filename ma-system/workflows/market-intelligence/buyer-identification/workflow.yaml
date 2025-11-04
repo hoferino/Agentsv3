@@ -1,0 +1,147 @@
+name: "Buyer Identification"
+description: "Identify and qualify potential strategic and financial buyers"
+
+activation_triggers:
+  - "find buyers"
+  - "identify buyers"
+  - "who could buy"
+  - "potential acquirers"
+  - "käufer finden"
+  - "buyer list"
+
+prerequisites:
+  required_data:
+    company_description: "required"
+    industry_sector: "required"
+    deal_size: "optional"
+    geography: "optional"
+
+  agents_needed:
+    primary: "market-intelligence"
+    supporting:
+      - "company-intelligence"  # For target context
+      - "financial-analyst"  # For deal sizing
+
+context_awareness:
+  check_existing: true  # Look for prior buyer research
+  incremental_expansion: true  # Can add to existing list
+  version_control: true
+
+execution:
+  mode: "flexible"
+  parallel_execution: true
+  update_knowledge_base: true
+
+workflow_steps:
+  1_define_buyer_profile:
+    - Strategic buyer characteristics
+    - Financial buyer criteria
+    - Geographic considerations
+    - Size requirements
+
+  2_strategic_buyer_research:
+    - Same industry competitors
+    - Adjacent industry players
+    - Vertical integration candidates
+    - Geographic expansion seekers
+    - Portfolio companies seeking add-ons
+
+  3_financial_buyer_research:
+    - PE firms with sector focus
+    - PE firms with appropriate fund size
+    - Active buyers in space
+    - Platform company seekers
+    - Add-on seekers for portfolio companies
+
+  4_buyer_qualification:
+    - Assess strategic fit
+    - Evaluate financial capacity
+    - Review M&A history
+    - Check recent activity
+    - Assess likelihood
+
+  5_prioritization:
+    - Score buyers on fit criteria
+    - Categorize (hot/warm/cold)
+    - Rank by likelihood
+    - Identify top prospects
+
+  6_contact_research:
+    - Identify decision makers
+    - Find contact information
+    - Research communication preferences
+    - Map referral connections
+
+  7_profile_creation:
+    - Create individual buyer profiles
+    - Document strategic rationale
+    - Capture contact details
+    - Note approach strategy
+
+outputs:
+  primary:
+    - file: "{deal-name}_Strategic_Buyers_v{X}.xlsx"
+      description: "Strategic buyer list with details"
+    - file: "{deal-name}_Financial_Buyers_v{X}.xlsx"
+      description: "PE/VC buyer list with details"
+
+  supporting:
+    - folder: "knowledge-base/buyer-profiles/"
+      description: "Individual buyer profile documents"
+
+  updates:
+    - "knowledge-base/deal-insights.md" (buyer count, top prospects)
+
+estimated_time: "2-4 hours for initial list, 30 min per detailed profile"
+
+skills_required:
+  - web_search
+  - xlsx
+
+buyer_categories:
+  strategic:
+    - "Direct competitors"
+    - "Adjacent market players"
+    - "Vertical integration"
+    - "Geographic expansion"
+    - "Technology acquisition"
+
+  financial:
+    - "Sector-focused PE"
+    - "Generalist PE (size appropriate)"
+    - "Platform seekers"
+    - "Add-on buyers"
+    - "Family offices"
+
+qualification_criteria:
+  strategic_fit: "How well target fits buyer's strategy"
+  financial_capacity: "Ability to finance transaction"
+  m&a_activity: "Track record of acquisitions"
+  cultural_fit: "Alignment of values and approach"
+  synergy_potential: "Revenue and cost synergies"
+
+prioritization_framework:
+  hot_leads:
+    - "Clear strategic fit"
+    - "Active acquirer"
+    - "Known to be looking"
+    - "Direct inquiry or relationship"
+
+  warm_leads:
+    - "Good strategic fit"
+    - "Occasional acquirer"
+    - "Appropriate size/focus"
+    - "Reachable contacts"
+
+  cold_leads:
+    - "Possible fit"
+    - "No recent M&A activity"
+    - "Outside core focus"
+    - "Difficult to reach"
+
+notes: |
+  Buyer identification can start early in process and be expanded
+  over time. Initial list can be broad (20-30 buyers), then refined
+  to qualified subset (10-15), then prioritized for outreach (5-8).
+
+  Research can be done in parallel with other deal activities.

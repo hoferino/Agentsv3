@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(python router.py:*)",
+      "Bash(python3:*)",
+      "Bash(tree:*)",
+      "Bash(STRUCTURE.txt)",
+      "Bash(cat:*)",
+      "Bash(pip install:*)",
+      "Bash(pip3 install:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

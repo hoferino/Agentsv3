@@ -1,0 +1,186 @@
+name: "Data Room Setup"
+description: "Set up and organize virtual data room for due diligence"
+
+activation_triggers:
+  - "setup dataroom"
+  - "data room"
+  - "datenraum"
+  - "VDR"
+  - "virtual data room"
+  - "prepare for DD"
+
+prerequisites:
+  required_data:
+    available_documents: "partial OK"  # Can start with what's available
+    document_list: "optional"
+
+  agents_needed:
+    primary: "dd-manager"
+    supporting:
+      - "financial-analyst"  # For financial documents
+      - "legal-tax-advisor"  # For legal documents
+      - "document-generator"  # For transaction documents
+
+context_awareness:
+  check_existing: true
+  progressive_build: true  # Add documents over time
+  version_control: true
+
+execution:
+  mode: "flexible"
+  iterative: true  # Can be built incrementally
+  update_knowledge_base: true
+
+workflow_steps:
+  1_structure_design:
+    - Create standard folder structure
+    - Customize for transaction specifics
+    - Set up index system
+    - Plan access controls
+
+  2_document_checklist:
+    - Create comprehensive DD checklist
+    - Categorize by section
+    - Mark required vs. optional
+    - Track document status
+
+  3_gap_analysis:
+    - Review available documents
+    - Identify missing documents
+    - Prioritize critical items
+    - Flag to management
+
+  4_document_organization:
+    - Sort documents into folders
+    - Create clear naming convention
+    - Index all documents
+    - Update checklist status
+
+  5_quality_review:
+    - Check document completeness
+    - Verify readability
+    - Ensure current versions
+    - Remove duplicates
+
+  6_access_control:
+    - Define user groups
+    - Set folder permissions
+    - Plan staged access (if applicable)
+    - Set up logging/tracking
+
+  7_finalization:
+    - Create data room index
+    - Prepare user guide
+    - Test access
+    - Brief management on process
+
+outputs:
+  primary:
+    - file: "{deal-name}_DataRoom_Index_v{X}.xlsx"
+      description: "Complete data room index"
+    - file: "{deal-name}_DD_Checklist_v{X}.xlsx"
+      description: "Due diligence checklist"
+
+  supporting:
+    - file: "{deal-name}_DD_Readiness_Report_v{X}.docx"
+      description: "Readiness assessment with gaps"
+
+  updates:
+    - "knowledge-base/deal-insights.md" (data room status)
+
+estimated_time: "3-5 hours initial setup, ongoing for updates"
+
+skills_required:
+  - xlsx
+  - pdf (for document review)
+  - docx
+
+standard_folder_structure:
+  01_company_overview:
+    - "Corporate structure"
+    - "Company history"
+    - "Business overview"
+
+  02_financial_information:
+    - "Historical financials"
+    - "Management accounts"
+    - "Budgets and projections"
+    - "Tax returns"
+    - "Audit reports"
+
+  03_legal_documents:
+    - "Corporate documents"
+    - "Material contracts"
+    - "Intellectual property"
+    - "Litigation"
+    - "Compliance"
+
+  04_commercial:
+    - "Customer information"
+    - "Supplier agreements"
+    - "Sales and marketing"
+    - "Pricing"
+
+  05_operations:
+    - "Facilities"
+    - "Equipment"
+    - "Technology and systems"
+    - "Processes"
+
+  06_human_resources:
+    - "Organization chart"
+    - "Employee list"
+    - "Employment agreements"
+    - "Benefits and compensation"
+    - "HR policies"
+
+  07_insurance:
+    - "Insurance policies"
+    - "Claims history"
+
+  08_environmental:
+    - "Environmental assessments"
+    - "Permits and licenses"
+
+  09_transaction_documents:
+    - "CIM and teaser"
+    - "Process letters"
+    - "Management presentation"
+
+document_priorities:
+  critical_first:
+    - "Audited financials (3 years)"
+    - "Corporate documents"
+    - "Major customer contracts"
+    - "Material agreements"
+    - "Litigation summary"
+
+  important_second:
+    - "Management accounts"
+    - "Employee list"
+    - "Intellectual property"
+    - "Insurance policies"
+    - "Facility leases"
+
+  supporting_third:
+    - "Board minutes"
+    - "HR policies"
+    - "Marketing materials"
+    - "Operational procedures"
+
+best_practices:
+  naming_convention: "Section_Subsection_DocumentName_Date_v#"
+  index_detail: "Include document description, date, pages"
+  access_control: "Start restrictive, expand as needed"
+  version_control: "Track all document updates"
+  completeness: "Flag gaps prominently"
+
+notes: |
+  Data room setup can begin early, even with incomplete documents.
+  Start with folder structure and checklist, then populate over time.
+  Gap list helps management prioritize document collection.
+
+  Can be set up in stages:
+  - Stage 1: Structure + critical documents (for LOI stage)
+  - Stage 2: Comprehensive (for DD stage)
+  - Stage 3: Full detail (for advanced DD)

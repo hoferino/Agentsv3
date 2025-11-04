@@ -1,0 +1,155 @@
+# M&A System Configuration
+# Task-based, phase-independent M&A advisory system
+
+project_config:
+  deal_name: "Project Munich"
+  target_company: "TechTarget GmbH"
+  output_folder: "./outputs/{deal_name}/"
+  created_date: "2024-11-04"
+
+  # Deal Metadata
+  deal_info:
+    industry: "Technology"
+    geography: "Germany"
+    deal_type: "sell-side"  # sell-side | buy-side | merger
+    transaction_size: "mid-market"  # small | mid-market | large-cap
+
+context:
+  # Dynamic context - updated throughout the process
+  current_focus: null  # e.g., "valuation", "buyer_identification", "due_diligence"
+  active_workstreams: []  # Multiple parallel workstreams possible
+  deal_status: "active"  # active | on_hold | closed | completed
+
+  # Track what's been done (auto-updated by agents)
+  completed_tasks:
+    valuation: false
+    cim_created: false
+    teaser_created: false
+    buyers_identified: false
+    dataroom_setup: false
+    loi_received: false
+
+  # Current deal phase (informational only, NOT restrictive)
+  current_phase: "preparation"  # preparation | marketing | negotiation | closing
+
+user_preferences:
+  language: "de"  # de | en
+  auto_agent_switching: true  # Allow seamless agent transitions
+  skill_auto_load: true  # Auto-load required skills (xlsx, docx, pptx, pdf)
+  verbose_mode: false  # Detailed agent reasoning output
+
+  # Output preferences
+  output_format:
+    financial_models: "xlsx"
+    documents: "docx"
+    presentations: "pptx"
+    reports: "pdf"
+
+system_config:
+  # Agent availability (all agents always available)
+  agents_enabled:
+    - managing_director
+    - financial_analyst
+    - market_intelligence
+    - document_generator
+    - dd_manager
+    - buyer_relationship_manager
+    - legal_tax_advisor
+    - company_intelligence
+
+  # Skills configuration
+  available_skills:
+    - xlsx  # Excel/financial modeling
+    - docx  # Word documents
+    - pptx  # PowerPoint presentations
+    - pdf   # PDF handling
+    - web_search  # Market research
+
+  # Knowledge base settings
+  knowledge_base:
+    auto_update: true  # Agents automatically update knowledge base
+    version_control: true  # Track document versions
+    persistent_context: true  # Maintain context across sessions
+
+# Orchestrator Settings
+orchestration:
+  # Intent detection keywords for routing
+  intent_keywords:
+    financial_analysis:
+      - "valuation"
+      - "bewertung"
+      - "DCF"
+      - "financial model"
+      - "finanzmodell"
+      - "working capital"
+      - "QoE"
+
+    document_creation:
+      - "CIM"
+      - "teaser"
+      - "management presentation"
+      - "process letter"
+      - "erstellen"
+      - "create"
+
+    market_intelligence:
+      - "find buyers"
+      - "käufer finden"
+      - "comparables"
+      - "vergleichstransaktionen"
+      - "industry analysis"
+      - "marktanalyse"
+
+    due_diligence:
+      - "dataroom"
+      - "datenraum"
+      - "Q&A"
+      - "questions"
+      - "red flags"
+
+    deal_execution:
+      - "LOI"
+      - "letter of intent"
+      - "negotiation"
+      - "verhandlung"
+      - "compare offers"
+
+    legal_tax:
+      - "legal"
+      - "tax"
+      - "steuer"
+      - "rechtlich"
+      - "structure"
+
+  # Agent routing preferences
+  routing:
+    allow_parallel_execution: true
+    auto_detect_dependencies: true
+    context_aware: true
+
+# Templates and Standards
+standards:
+  valuation_methods:
+    - "DCF"
+    - "Multiples"
+    - "Precedent Transactions"
+
+  document_templates:
+    cim: "templates/CIM_Template_v2.docx"
+    teaser: "templates/Teaser_Template_v2.pptx"
+    management_deck: "templates/Management_Presentation_v2.pptx"
+
+  financial_model_structure:
+    - "Historical Financials (3-5 years)"
+    - "Normalized EBITDA"
+    - "Working Capital Analysis"
+    - "DCF Valuation"
+    - "Multiples Analysis"
+    - "Sensitivity Analysis"
+
+# Logging and Tracking
+logging:
+  track_agent_usage: true
+  log_decisions: true
+  save_conversation_history: true
+  log_file: "./logs/ma-system.log"

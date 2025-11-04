@@ -1,0 +1,97 @@
+name: "Business Valuation"
+description: "Comprehensive business valuation using DCF and multiples"
+
+# Can be activated at ANY time during the deal
+activation_triggers:
+  - "valuation"
+  - "value the company"
+  - "what's it worth"
+  - "DCF"
+  - "bewertung"
+  - "unternehmensbewertung"
+
+prerequisites:
+  required_data:
+    financial_statements: "optional"  # Can work with estimates
+    market_data: "auto_fetch"  # Agent will research if needed
+
+  agents_needed:
+    primary: "financial-analyst"
+    supporting:
+      - "market-intelligence"  # For comparables
+      - "company-intelligence"  # For business context
+
+context_awareness:
+  check_existing: true  # Look for prior valuations
+  incremental_update: true  # Can build on previous work
+  version_control: true  # Maintain valuation history
+
+execution:
+  mode: "flexible"  # Can run with partial information
+  parallel_execution: true  # Can run while other work continues
+  cache_results: true  # Make available to other agents
+  update_knowledge_base: true
+
+workflow_steps:
+  1_gather_information:
+    - Collect financial statements (3-5 years historical)
+    - Obtain management projections (if available)
+    - Research market data and comparables
+    - Understand business drivers
+
+  2_normalize_financials:
+    - Calculate adjusted EBITDA
+    - Identify one-time items
+    - Normalize owner compensation
+    - Adjust for non-recurring items
+
+  3_dcf_valuation:
+    - Build revenue projections
+    - Forecast EBITDA margins
+    - Calculate free cash flow
+    - Determine WACC
+    - Calculate terminal value
+    - Discount to present value
+
+  4_multiples_valuation:
+    - Research comparable public companies
+    - Research precedent transactions
+    - Calculate relevant multiples (EV/Revenue, EV/EBITDA)
+    - Apply multiples to target metrics
+
+  5_triangulation:
+    - Compare DCF and multiples results
+    - Assess reasonableness
+    - Determine valuation range
+    - Select midpoint estimate
+
+  6_sensitivity_analysis:
+    - Key assumptions sensitivity
+    - Scenario analysis (base/upside/downside)
+    - Waterfall charts
+
+  7_documentation:
+    - Create Excel valuation model
+    - Document key assumptions
+    - Update knowledge base
+    - Version control
+
+outputs:
+  primary:
+    - file: "{deal-name}_Valuation_Model_v{X}.xlsx"
+      description: "Comprehensive valuation model"
+
+  updates:
+    - "knowledge-base/deal-insights.md" (valuation, range, date)
+    - "knowledge-base/valuation-history.md" (track evolution)
+
+estimated_time: "2-4 hours for initial, 30-60 min for updates"
+
+skills_required:
+  - xlsx
+
+notes: |
+  This workflow can be triggered at any time, even with incomplete
+  information. The agent will work with what's available and flag
+  what's missing. Valuation can be updated iteratively as new
+  information becomes available.

@@ -1,0 +1,117 @@
+name: "CIM Creation"
+description: "Create Confidential Information Memorandum"
+
+activation_triggers:
+  - "create CIM"
+  - "CIM"
+  - "information memorandum"
+  - "confidential memorandum"
+  - "erstelle CIM"
+
+prerequisites:
+  required_data:
+    company_information: "required"
+    financial_data: "required"
+    market_analysis: "optional"  # Can be researched
+    management_bios: "optional"  # Can work without initially
+
+  agents_needed:
+    primary: "document-generator"
+    supporting:
+      - "company-intelligence"  # For company background
+      - "financial-analyst"  # For financial data
+      - "market-intelligence"  # For market section
+
+context_awareness:
+  check_existing: true  # Look for draft versions
+  incremental_build: true  # Can build section by section
+  version_control: true
+
+execution:
+  mode: "flexible"
+  allow_partial_completion: true  # Can flag missing sections
+  update_knowledge_base: true
+
+workflow_steps:
+  1_information_gathering:
+    - Company background (Company Intelligence)
+    - Financial data (Financial Analyst)
+    - Market analysis (Market Intelligence)
+    - Management team information
+    - Investment highlights
+
+  2_structure_setup:
+    - Executive Summary
+    - Investment Highlights
+    - Transaction Overview
+    - Company Overview
+    - Market Analysis
+    - Financial Performance
+    - Operations
+    - Management Team
+    - Investment Rationale
+    - Appendices
+
+  3_content_creation:
+    - Write compelling narrative
+    - Incorporate financial tables
+    - Add charts and graphs
+    - Professional formatting
+    - Consistent style
+
+  4_review_and_refinement:
+    - Check completeness
+    - Verify accuracy
+    - Format consistency
+    - Executive summary alignment
+
+  5_finalization:
+    - Table of contents
+    - Page numbers
+    - Version control
+    - PDF conversion for distribution
+
+outputs:
+  primary:
+    - file: "{deal-name}_CIM_v{X}.docx"
+      description: "Comprehensive CIM (30-60 pages)"
+    - file: "{deal-name}_CIM_v{X}.pdf"
+      description: "Distribution version"
+
+  updates:
+    - "knowledge-base/deal-insights.md" (CIM status, version)
+
+estimated_time: "4-8 hours for initial, 30-60 min for updates"
+
+skills_required:
+  - docx
+  - pdf (for final version)
+
+quality_checklist:
+  - [ ] All sections complete
+  - [ ] Financials accurate and current
+  - [ ] Consistent formatting
+  - [ ] No typos or errors
+  - [ ] Charts professionally formatted
+  - [ ] Table of contents accurate
+  - [ ] Page numbers correct
+  - [ ] Contact information included
+  - [ ] Confidentiality disclaimers included
+  - [ ] Version and date correct
+
+standard_sections:
+  executive_summary: "2-3 pages"
+  investment_highlights: "1-2 pages"
+  transaction_overview: "1 page"
+  company_overview: "8-12 pages"
+  market_analysis: "5-8 pages"
+  financial_performance: "8-12 pages"
+  operations: "5-8 pages"
+  management_team: "3-5 pages"
+  investment_rationale: "2-3 pages"
+  appendices: "varies"
+
+notes: |
+  CIM can be created incrementally. Document Generator will flag
+  missing sections and work with available information. Management
+  team section often requires separate input from client.
