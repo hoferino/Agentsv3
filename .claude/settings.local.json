@@ -10,7 +10,8 @@
       "Bash(pip install:*)",
       "Bash(pip3 install:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": []

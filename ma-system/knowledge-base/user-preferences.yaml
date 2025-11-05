@@ -1,0 +1,22 @@
+# User Preferences for M&A Agent System
+# This file stores user preferences across sessions
+
+# Financial Analyst Interaction Mode
+# Options: one_shot | dialog | hybrid
+# - one_shot: Complete analysis without interruption
+# - dialog: Interactive menu-driven workflow
+# - hybrid: One-shot with refinement options (RECOMMENDED)
+financial_analyst_mode: hybrid
+
+# Language Preference
+# Options: en | de
+language: en
+
+# Auto-save preferences
+auto_save_preferences: true
+
+# Last updated
+last_updated: null
+
+# Session history
+session_count: 0
