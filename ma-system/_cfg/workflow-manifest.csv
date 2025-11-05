@@ -1,0 +1,7 @@
+"id","name","category","description","workflow_config"
+"financial-document-analysis","Analyze Financial Documents","financial","Deep analysis of uploaded financial packages","{project-root}/ma-system/workflows/financial/document-analysis/workflow.yaml"
+"financial-valuation","Business Valuation","financial","Comprehensive valuation using DCF and multiples","{project-root}/ma-system/workflows/financial/valuation/workflow.yaml"
+"financial-qoe","Quality of Earnings","financial","Normalize EBITDA and assess earnings quality","{project-root}/ma-system/workflows/financial/qoe/workflow.yaml"
+"financial-devils-advocate","Devil's Advocate Review","financial","Challenge key valuation assumptions with structured prompts","{project-root}/ma-system/workflows/financial/devils-advocate/workflow.yaml"
+"financial-sensitivity","Sensitivity & Scenario Analysis","financial","Build sensitivity tables and scenarios around key drivers","{project-root}/ma-system/workflows/financial/sensitivity/workflow.yaml"
+"financial-review-export","Review & Export Package","financial","Assemble financial outputs for delivery","{project-root}/ma-system/workflows/financial/review-export/workflow.yaml"

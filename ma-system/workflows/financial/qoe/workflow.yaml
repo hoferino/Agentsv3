@@ -1,0 +1,73 @@
+# Quality of Earnings Workflow Configuration
+name: "Quality of Earnings"
+version: "1.0.0"
+description: "Normalizes EBITDA, identifies adjustments, and assesses earnings sustainability."
+
+activation_triggers:
+  - "quality of earnings"
+  - "QoE"
+  - "EBITDA adjustments"
+  - "normalized EBITDA"
+
+prerequisites:
+  required_data:
+    normalized_financials: "preferred"
+    adjustment_support: "optional"
+  agents_needed:
+    primary: "financial-analyst"
+    supporting:
+      - "dd-manager"
+      - "company-intelligence"
+
+context_awareness:
+  check_existing: true
+  incremental_update: true
+  version_control: true
+
+execution:
+  mode: "dialog"
+  parallel_execution: false
+  cache_results: true
+  update_knowledge_base: true
+
+workflow_steps:
+  1_prepare_baseline:
+    - Load latest normalized financials
+    - Confirm reporting periods and segments
+    - Identify data gaps requiring clarification
+  2_identify_adjustments:
+    - Capture owner compensation normalization
+    - Flag one-time revenues and expenses
+    - Identify related-party transactions
+    - Review working capital swings impacting EBITDA
+  3_build_adjustment_bridge:
+    - Create reported-to-normalized EBITDA bridge
+    - Quantify each adjustment with rationale
+    - Validate adjustments with user before finalizing
+  4_quality_assessment:
+    - Evaluate revenue concentration and churn
+    - Analyze margin sustainability trends
+    - Summarize risks and opportunities
+  5_finalize_outputs:
+    - Update QoE workbook
+    - Document assumptions and pending questions
+    - Suggest follow-up analyses (e.g., devil's advocate)
+
+outputs:
+  primary:
+    - file: "{output_folder}/financial/qoe/{deal-name}_QoE_Summary_v{X}.xlsx"
+      description: "Normalized EBITDA bridge with supporting schedules"
+    - file: "{output_folder}/financial/qoe/{deal-name}_QoE_Memo_v{X}.md"
+      description: "Narrative summary of QoE findings"
+  updates:
+    - "knowledge-base/deal-insights.md"
+    - "knowledge-base/valuation-history.md"
+
+estimated_time: "60-120 minutes initial, 20-30 minutes incremental"
+
+skills_required:
+  - xlsx
+  - pdf
+
+notes: |
+  The workflow maintains all adjustments in version-controlled outputs. The dialog will pause after each adjustment category to confirm acceptance before continuing.

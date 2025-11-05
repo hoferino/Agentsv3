@@ -81,12 +81,45 @@ class FinancialAnalystDialog:
             user_preference=interaction_mode
         )
 
+        self.menu_options = self._load_menu_configuration()
+
     def _get_preferences_path(self) -> Path:
         """Get path to user preferences file"""
         # Determine knowledge base path relative to this file
         current_dir = Path(__file__).parent
         kb_path = current_dir.parent / "knowledge-base" / "user-preferences.yaml"
         return kb_path
+
+    def _get_menu_config_path(self) -> Path:
+        """Get path to shared menu configuration."""
+        return Path(__file__).with_name("financial-analyst-menu.yaml")
+
+    def _load_menu_configuration(self) -> List[Dict]:
+        """Load central menu configuration shared across prompts."""
+        try:
+            menu_path = self._get_menu_config_path()
+            with open(menu_path, "r") as f:
+                data = yaml.safe_load(f) or {}
+                options = data.get("options", [])
+                normalized: List[Dict] = []
+                for option in options:
+                    normalized.append(
+                        {
+                            "id": option.get("id"),
+                            "label": option.get("label"),
+                            "description": option.get("description"),
+                            "workflow": option.get("workflow"),
+                            "action": option.get("action"),
+                            "status_key": option.get("status_key"),
+                            "highlight": bool(option.get("highlight", False)),
+                        }
+                    )
+                return normalized
+        except FileNotFoundError:
+            print("Menu configuration file missing; falling back to defaults.")
+        except Exception as exc:
+            print(f"Unable to load menu configuration: {exc}")
+        return []
 
     def _load_user_preference(self) -> InteractionMode:
         """Load user's preferred interaction mode from knowledge base"""
@@ -197,103 +230,63 @@ class FinancialAnalystDialog:
 
     def show_main_menu(self) -> Dict:
         """
-        Display main menu with available options based on current state.
+        Build main menu from shared configuration and dialog state.
         """
-        menu = {
+        options: List[Dict] = []
+
+        for option in self.menu_options:
+            status_text = "Ready"
+
+            status_key = option.get("status_key")
+            if status_key:
+                if status_key == "valuation_created" and self.state.current_valuation_version:
+                    status_text = f"Latest: v{self.state.current_valuation_version}"
+                elif self.state.analysis_completed.get(status_key):
+                    status_text = "Completed ✓"
+
+            if option["id"] == "devils_advocate":
+                status_text = (
+                    "Ready" if self.state.analysis_completed.get("valuation_created") else "Available after valuation"
+                )
+            if option["id"] == "refine_excel":
+                status_text = (
+                    f"Latest: v{self.state.current_valuation_version}"
+                    if self.state.current_valuation_version
+                    else "Available after valuation"
+                )
+            if option["id"] == "sensitivity":
+                status_text = (
+                    "Ready" if self.state.analysis_completed.get("valuation_created") else "Available after valuation"
+                )
+            if option["id"] == "review_export":
+                ready_outputs = [
+                    self.state.analysis_completed.get("valuation_created"),
+                    self.state.analysis_completed.get("qoe_completed"),
+                    self.state.analysis_completed.get("sensitivity_done"),
+                ]
+                status_text = "Ready" if any(ready_outputs) else "Available after core analyses"
+            if option["id"] == "ask_questions":
+                status_text = "Always available"
+            if option["id"] == "change_mode":
+                status_text = f"Current: {self.state.interaction_mode.value}"
+
+            options.append(
+                {
+                    "id": option["id"],
+                    "label": option["label"],
+                    "description": option["description"],
+                    "status": status_text,
+                    "workflow": option.get("workflow"),
+                    "action": option.get("action"),
+                    "highlight": option.get("highlight", False),
+                }
+            )
+
+        return {
             "title": "Financial Analyst - Main Menu",
             "subtitle": f"Deal: {self.deal_name}",
-            "options": []
+            "options": options,
         }
-
-        # Option 1: Analyze uploaded documents
-        menu["options"].append({
-            "id": "analyze_docs",
-            "label": "Analyze All Financial Documents",
-            "description": "Deep analysis of uploaded financials, tax returns, and reports",
-            "status": "✓ Completed" if self.state.analysis_completed['documents_analyzed'] else "Ready",
-            "enabled": True
-        })
-
-        # Option 2: Build/Update Valuation
-        if self.state.analysis_completed['documents_analyzed']:
-            menu["options"].append({
-                "id": "build_valuation",
-                "label": "Build/Update Valuation Model",
-                "description": "Create or refine DCF and multiples-based valuation",
-                "status": f"v{self.state.current_valuation_version}" if self.state.current_valuation_version else "Not started",
-                "enabled": True
-            })
-
-        # Option 3: Refine Excel Model (interactive)
-        if self.state.current_valuation_version:
-            menu["options"].append({
-                "id": "refine_excel",
-                "label": "Refine Excel Model (Dialog Mode)",
-                "description": "Interactive Q&A to refine assumptions, formulas, and structure",
-                "status": "Available",
-                "enabled": True
-            })
-
-        # Option 4: Quality of Earnings Analysis
-        if self.state.analysis_completed['documents_analyzed']:
-            menu["options"].append({
-                "id": "qoe_analysis",
-                "label": "Quality of Earnings (QoE) Analysis",
-                "description": "EBITDA normalization, adjustments, and earnings sustainability",
-                "status": "✓ Completed" if self.state.analysis_completed['qoe_completed'] else "Ready",
-                "enabled": True
-            })
-
-        # Option 5: Sensitivity & Scenario Analysis
-        if self.state.current_valuation_version:
-            menu["options"].append({
-                "id": "sensitivity",
-                "label": "Sensitivity & Scenario Analysis",
-                "description": "Test key assumptions: growth, margins, multiples, WACC",
-                "status": "✓ Completed" if self.state.analysis_completed['sensitivity_done'] else "Ready",
-                "enabled": True
-            })
-
-        # Option 6: Devil's Advocate Challenge
-        if self.state.current_valuation_version:
-            menu["options"].append({
-                "id": "devils_advocate",
-                "label": "Play Devil's Advocate",
-                "description": "Challenge assumptions, test downside scenarios, identify risks",
-                "status": f"✓ {len(self.state.challenges_addressed)} challenges addressed" if self.state.challenges_addressed else "Ready",
-                "enabled": True,
-                "highlight": True  # Special attention item
-            })
-
-        # Option 7: Review & Export
-        if self.state.current_valuation_version:
-            menu["options"].append({
-                "id": "review_export",
-                "label": "Review & Export Final Package",
-                "description": "Summary memo, final model, data quality notes",
-                "status": "Ready",
-                "enabled": True
-            })
-
-        # Option 8: Ask Questions
-        menu["options"].append({
-            "id": "ask_questions",
-            "label": "Ask Financial Questions",
-            "description": "Free-form questions about financials, metrics, or analysis",
-            "status": "Always available",
-            "enabled": True
-        })
-
-        # Option 9: Change Mode
-        menu["options"].append({
-            "id": "change_mode",
-            "label": f"Change Mode (Current: {self.state.interaction_mode.value})",
-            "description": "Switch between one-shot, dialog, or hybrid mode",
-            "status": "Settings",
-            "enabled": True
-        })
-
-        return menu
 
     def handle_analyze_documents(self) -> Dict:
         """

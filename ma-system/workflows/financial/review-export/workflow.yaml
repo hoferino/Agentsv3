@@ -1,0 +1,68 @@
+# Review & Export Workflow Configuration
+name: "Financial Package Review & Export"
+version: "1.0.0"
+description: "Packages valuation, QoE, and sensitivity outputs for delivery to stakeholders."
+
+activation_triggers:
+  - "review financial outputs"
+  - "export valuation package"
+  - "prepare deliverables"
+
+prerequisites:
+  required_data:
+    valuation_model: "preferred"
+    qoe_summary: "optional"
+    sensitivity_outputs: "optional"
+  agents_needed:
+    primary: "financial-analyst"
+    supporting:
+      - "document-generator"
+      - "managing-director"
+
+context_awareness:
+  check_existing: true
+  incremental_update: true
+  version_control: true
+
+execution:
+  mode: "hybrid"
+  parallel_execution: false
+  cache_results: true
+  update_knowledge_base: true
+
+workflow_steps:
+  1_assess_readiness:
+    - Check availability of latest valuation, QoE, sensitivity outputs
+    - Confirm target audience and delivery format
+  2_curate_contents:
+    - Assemble executive summary
+    - Include key charts and tables
+    - Highlight open questions and next steps
+  3_quality_review:
+    - Verify consistency across outputs
+    - Ensure assumptions and versions are documented
+    - Flag items requiring manual updates
+  4_export_package:
+    - Write outputs to delivery folder (ZIP optional)
+    - Update knowledge base with package metadata
+    - Notify orchestrator of delivery status
+
+outputs:
+  primary:
+    - file: "{output_folder}/financial/review-export/{deal-name}_financial_package_v{X}.zip"
+      description: "Bundled financial package ready for distribution"
+    - file: "{output_folder}/financial/review-export/{deal-name}_package_summary_v{X}.md"
+      description: "Summary of included materials and assumptions"
+  updates:
+    - "knowledge-base/deal-insights.md"
+    - "knowledge-base/deliverable-log.md"
+
+estimated_time: "20-30 minutes"
+
+skills_required:
+  - xlsx
+  - docx
+  - pptx
+
+notes: |
+  Designed to run after major financial workflows. The export step can be customized to integrate with document generator agents if present.

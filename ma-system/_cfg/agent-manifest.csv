@@ -1,0 +1,2 @@
+"id","name","description","persona_file","command_prompt"
+"financial-analyst","Financial Analyst","Financial modeling, valuation, QoE specialist","{project-root}/ma-system/agents/financial-analyst.md","{project-root}/.claude/commands/financial-analyst.md"

@@ -1,0 +1,68 @@
+# Devil's Advocate Workflow Configuration
+name: "Devil's Advocate Review"
+version: "1.0.0"
+description: "Structured challenge of valuation assumptions from buyer-oriented perspectives."
+
+activation_triggers:
+  - "devil's advocate"
+  - "challenge assumptions"
+  - "buyer perspective"
+
+prerequisites:
+  required_data:
+    valuation_model: "required"
+    key_assumptions: "required"
+  agents_needed:
+    primary: "financial-analyst"
+    supporting:
+      - "managing-director"
+      - "market-intelligence"
+
+context_awareness:
+  check_existing: true
+  incremental_update: true
+  version_control: true
+
+execution:
+  mode: "dialog"
+  parallel_execution: false
+  cache_results: true
+  update_knowledge_base: true
+
+workflow_steps:
+  1_select_challenge_profile:
+    - Offer challenge depth (light, full, buyer-type)
+    - Retrieve latest valuation outputs
+    - Confirm target focus areas with user
+  2_challenge_revenue:
+    - Stress test growth assumptions vs. market data
+    - Evaluate customer concentration risks
+    - Identify downside scenarios
+  3_challenge_margin_and_costs:
+    - Question margin expansion drivers
+    - Assess cost structure flexibility
+    - Propose alternative cases
+  4_challenge_capital_structure:
+    - Review working capital assumptions
+    - Examine capex and investment requirements
+    - Highlight financing considerations
+  5_document_risks_and_actions:
+    - Summarize challenged assumptions and responses
+    - Capture mitigation steps and follow-ups
+    - Update valuation scenarios with downside case
+
+outputs:
+  primary:
+    - file: "{output_folder}/financial/devils-advocate/{deal-name}_challenge_log_v{X}.md"
+      description: "Log of challenged assumptions and responses"
+  updates:
+    - "knowledge-base/deal-insights.md"
+    - "knowledge-base/valuation-history.md"
+
+estimated_time: "30-45 minutes per session"
+
+skills_required:
+  - xlsx
+
+notes: |
+  Intended to follow a completed valuation workflow. The workflow saves each challenge session to enable auditability and reuse in buyer negotiations.

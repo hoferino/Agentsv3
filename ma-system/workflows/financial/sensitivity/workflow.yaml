@@ -1,0 +1,63 @@
+# Sensitivity & Scenario Workflow Configuration
+name: "Sensitivity & Scenario Analysis"
+version: "1.0.0"
+description: "Builds sensitivity tables, scenario cases, and visualization outputs for key valuation drivers."
+
+activation_triggers:
+  - "sensitivity analysis"
+  - "scenario analysis"
+  - "valuation scenarios"
+
+prerequisites:
+  required_data:
+    valuation_model: "required"
+    key_assumptions: "required"
+  agents_needed:
+    primary: "financial-analyst"
+    supporting:
+      - "market-intelligence"
+
+context_awareness:
+  check_existing: true
+  incremental_update: true
+  version_control: true
+
+execution:
+  mode: "dialog-or-hybrid"
+  parallel_execution: true
+  cache_results: true
+  update_knowledge_base: true
+
+workflow_steps:
+  1_select_analysis_types:
+    - Offer choice of one-way, two-way, and scenario analyses
+    - Confirm priority assumptions to test
+  2_configure_parameters:
+    - Capture ranges for WACC, growth, margins, multiples
+    - Align scenarios with devil's advocate outcomes if available
+  3_generate_outputs:
+    - Build sensitivity tables in Excel model
+    - Create scenario summary tables and charts
+    - Highlight key valuation impacts
+  4_review_and_publish:
+    - Present results to user for validation
+    - Document insights and recommended next steps
+    - Package outputs for knowledge base
+
+outputs:
+  primary:
+    - file: "{output_folder}/financial/sensitivity/{deal-name}_sensitivity_tables_v{X}.xlsx"
+      description: "Sensitivity tables generated from valuation model"
+    - file: "{output_folder}/financial/sensitivity/{deal-name}_scenario_summary_v{X}.md"
+      description: "Narrative summary of scenarios and implications"
+  updates:
+    - "knowledge-base/deal-insights.md"
+    - "knowledge-base/valuation-history.md"
+
+estimated_time: "20-40 minutes per run"
+
+skills_required:
+  - xlsx
+
+notes: |
+  Works best after valuation and devil's advocate workflows. Results are saved to enable reuse in pitch materials and buyer discussions.

@@ -1,0 +1,56 @@
+# Menu configuration for Financial Analyst dialog system
+options:
+  - id: analyze_documents
+    label: "Analyze Financial Documents"
+    description: "Deep analysis of uploaded financial statements, tax returns, and reports."
+    workflow: "{project-root}/ma-system/workflows/financial/document-analysis/workflow.yaml"
+    status_key: "documents_analyzed"
+    highlight: false
+  - id: build_valuation
+    label: "Build or Update Valuation"
+    description: "Create or refresh DCF and multiples valuation models."
+    workflow: "{project-root}/ma-system/workflows/financial/valuation/workflow.yaml"
+    status_key: "valuation_created"
+    highlight: true
+  - id: refine_excel
+    label: "Refine Valuation Model"
+    description: "Interactive dialog to review assumptions and enhance the Excel model."
+    action: "refine-excel"
+    status_key: "valuation_created"
+    highlight: false
+  - id: qoe_analysis
+    label: "Run Quality of Earnings"
+    description: "Normalize EBITDA, document adjustments, and assess earnings quality."
+    workflow: "{project-root}/ma-system/workflows/financial/qoe/workflow.yaml"
+    status_key: "qoe_completed"
+    highlight: false
+  - id: devils_advocate
+    label: "Play Devil's Advocate"
+    description: "Challenge key assumptions from a buyer perspective."
+    workflow: "{project-root}/ma-system/workflows/financial/devils-advocate/workflow.yaml"
+    status_key: "challenged"
+    highlight: false
+  - id: sensitivity
+    label: "Sensitivity & Scenarios"
+    description: "Build sensitivity tables and scenario comparisons."
+    workflow: "{project-root}/ma-system/workflows/financial/sensitivity/workflow.yaml"
+    status_key: "sensitivity_done"
+    highlight: false
+  - id: review_export
+    label: "Review & Export Package"
+    description: "Assemble financial outputs for stakeholders."
+    workflow: "{project-root}/ma-system/workflows/financial/review-export/workflow.yaml"
+    status_key: null
+    highlight: false
+  - id: ask_questions
+    label: "Ask Financial Questions"
+    description: "Answer ad-hoc financial questions and provide guidance."
+    action: "ask-questions"
+    status_key: null
+    highlight: false
+  - id: change_mode
+    label: "Change Interaction Mode"
+    description: "Switch between one-shot, dialog, or hybrid modes."
+    action: "change-mode"
+    status_key: null
+    highlight: false

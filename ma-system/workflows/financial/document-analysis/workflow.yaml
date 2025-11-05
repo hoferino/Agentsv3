@@ -1,0 +1,68 @@
+# Document Analysis Workflow Configuration
+name: "Financial Document Analysis"
+version: "1.0.0"
+description: "Extracts, normalizes, and summarizes financial data from uploaded statements, reports, and tax filings."
+
+activation_triggers:
+  - "analyze financial documents"
+  - "document analysis"
+  - "scan statements"
+  - "verarbeite finanzunterlagen"
+
+prerequisites:
+  required_data:
+    financial_packages: "optional"  # Works with partial uploads, flags gaps
+    supporting_docs: "optional"
+  agents_needed:
+    primary: "financial-analyst"
+    supporting:
+      - "company-intelligence"
+      - "market-intelligence"
+
+context_awareness:
+  check_existing: true
+  incremental_update: true
+  version_control: true
+
+execution:
+  mode: "dialog-first"
+  parallel_execution: false
+  cache_results: true
+  update_knowledge_base: true
+
+workflow_steps:
+  1_scope_documents:
+    - Inventory uploaded financial files
+    - Classify documents (financial statements, tax returns, management reports)
+    - Ask user for priority focus areas
+  2_extract_data:
+    - Parse historical P&L, balance sheet, cash flow data
+    - Capture key metrics (revenue, EBITDA, FCF, working capital)
+    - Flag anomalies or missing periods
+  3_quality_checks:
+    - Verify period alignment and currency consistency
+    - Highlight data gaps or potential errors
+    - Summarize findings for follow-up
+  4_output_updates:
+    - Update knowledge base with extracted metrics
+    - Store normalized datasets for downstream workflows
+    - Recommend next best actions (valuation, QoE, etc.)
+
+outputs:
+  primary:
+    - file: "{output_folder}/financial/document-analysis/{deal-name}_document_inventory_v{X}.md"
+      description: "Inventory of all analyzed documents with status"
+    - file: "{output_folder}/financial/document-analysis/{deal-name}_normalized_financials_v{X}.xlsx"
+      description: "Normalized historical financial dataset"
+  updates:
+    - "knowledge-base/deal-insights.md"
+    - "knowledge-base/financial-data-catalog.md"
+
+estimated_time: "45-90 minutes initial, 10-20 minutes incremental"
+
+skills_required:
+  - xlsx
+  - pdf
+
+notes: |
+  Designed to precede valuation and QoE workflows. The agent will reuse classifications and extracted metrics across subsequent menu options.

@@ -70,27 +70,43 @@ The agent **immediately presents a menu** based on the current state of your dea
 
 What would you like to do?
 
-1. **Analyze All Financial Documents** ○
-   Deep analysis of uploaded financials, tax returns, and reports
+1. **Analyze Financial Documents** ○
+   Deep analysis of uploaded statements, tax returns, and reports
    Status: Ready
 
-2. **Build/Update Valuation Model** ○
-   Create or refine DCF and multiples-based valuation
+2. **Build or Update Valuation** ○
+   Create or refresh DCF and multiples-based valuation
    Status: Not started
 
-3. **Quality of Earnings (QoE) Analysis** ○
-   EBITDA normalization, adjustments, and earnings sustainability
-   Status: Ready
+3. **Refine Valuation Model** ○
+   Guided review of assumptions, scenarios, and model structure
+   Status: Available after valuation
 
-4. **Play Devil's Advocate** ○ [RECOMMENDED]
+4. **Run Quality of Earnings** ○
+   EBITDA normalization, adjustments, and earnings sustainability
+   Status: Ready (after document analysis)
+
+5. **Play Devil's Advocate** ○ [RECOMMENDED]
    Challenge assumptions, test downside scenarios, identify risks
    Status: Available after valuation
 
-5. **Ask Financial Questions** ○
+6. **Sensitivity & Scenario Analysis** ○
+   Build sensitivities, compare scenarios, create visuals
+   Status: Available after valuation
+
+7. **Review & Export Package** ○
+   Assemble deliverables and update knowledge base entries
+   Status: Available after core analyses
+
+8. **Ask Financial Questions** ○
    Free-form questions about financials, metrics, or analysis
    Status: Always available
 
-Please select an option (1-5) or describe what you'd like to do.
+9. **Change Interaction Mode** ○
+   Switch between one-shot, dialog, or hybrid modes
+   Status: Current mode displayed
+
+Please select an option (1-9) or describe what you'd like to do.
 ```
 
 **Key Feature:** Menu options adapt based on:
@@ -98,6 +114,13 @@ Please select an option (1-5) or describe what you'd like to do.
 - What files exist in the knowledge base
 - Current valuation version
 - Available documents
+
+### Shared System Files
+- `ma-system/_cfg/agent-manifest.csv` — single source of truth for agent definitions and linked prompts.
+- `ma-system/_cfg/workflow-manifest.csv` — catalog of financial workflows executed by the analyst.
+- `ma-system/agents/financial-analyst-menu.yaml` — menu configuration consumed by both Claude and the Python dialog system.
+- `ma-system/core/tasks/workflow.xml` — workflow runner instructions executed whenever a menu option references a workflow.
+- `.claude/commands/financial-analyst.md` — Claude prompt kept in sync with the above artifacts.
 
 ---
 

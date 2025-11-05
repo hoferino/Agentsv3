@@ -1,0 +1,37 @@
+<task id="ma-system/core/tasks/workflow.xml" name="Run ma-system Workflow">
+  <objective>Execute a ma-system workflow file by loading configuration, following instructions, and persisting outputs.</objective>
+
+  <llm critical="true">
+    <mandate>Read entire workflow YAML before acting.</mandate>
+    <mandate>Resolve {project-root} variables relative to repository root.</mandate>
+    <mandate>Load ma-system global config first to access deal metadata.</mandate>
+  </llm>
+
+  <flow>
+    <step n="1" title="Initialize Workflow Context">
+      <action>Read workflow.yaml from provided path.</action>
+      <action>Load global config from {project-root}/ma-system/config.yaml.</action>
+      <action>Resolve placeholders such as {deal-name} and {output_folder} using config values.</action>
+      <ask if="missing required data">Request missing inputs from the user.</ask>
+    </step>
+
+    <step n="2" title="Execute Workflow Steps">
+      <iterate>For each logical step defined in workflow_steps:</iterate>
+      <action>Explain planned sub-actions to the user unless yolo mode is confirmed.</action>
+      <action>Perform analysis or file operations dictated by the step.</action>
+      <check>Confirm completion of the step before proceeding.</check>
+    </step>
+
+    <step n="3" title="Persist Outputs">
+      <action>Ensure output directory exists.</action>
+      <action>Write or update files described in outputs.primary.</action>
+      <action>Update knowledge base entries listed under outputs.updates.</action>
+      <action>Summarize created artifacts with paths and versions.</action>
+    </step>
+
+    <step n="4" title="Close Workflow">
+      <action>Present next recommended actions based on workflow notes or pending items.</action>
+      <action>Offer to trigger follow-up workflows if relevant.</action>
+    </step>
+  </flow>
+</task>
