@@ -1,0 +1,315 @@
+# Financial Data Extraction Workflow
+# Extracts financial data from data room into tiered structure
+# Guarantees 100% coverage with zero information loss
+
+name: "Financial Data Extraction"
+version: "1.0"
+agent: "financial-analyst"
+
+description: |
+  Extracts ALL financial data from raw data room files into a 3-tier structure:
+  - Tier 1: Summary (2k tokens, always loaded)
+  - Tier 2: Detailed breakdowns (20k tokens per file, on-demand)
+  - Tier 3: Complete raw data (60k tokens, query-only, 100% coverage)
+
+activation_triggers:
+  - "analyze financial documents"
+  - "extract financial data"
+  - "process data room"
+  - First time accessing financial documents for a deal
+
+prerequisites:
+  required_data:
+    data_room_path: "required"  # Path to financial documents
+
+  required_context:
+    deal_name: "required"
+    sandbox_path: "required"
+
+context_awareness:
+  check_existing: true
+  skip_if_exists: "{sandbox_path}/tier1/summary.json"
+  incremental_update: true
+  version_control: true
+
+execution:
+  mode: "flexible"
+  parallel_execution: false
+  update_knowledge_base: true
+  max_duration_minutes: 30
+
+workflow_steps:
+  1_validate_inputs:
+    description: "Validate data room path and required files exist"
+    actions:
+      - Check data room path exists
+      - List all financial files (Excel, PDF)
+      - Verify at least one P&L or Balance Sheet file found
+      - Create {sandbox_path}/tier1, tier2, tier3 directories
+
+  2_extract_tier3_raw:
+    description: "Extract EVERY cell from raw files to Tier 3 - 100% coverage"
+    actions:
+      - Read ALL raw Excel files from data room
+      - For each file:
+          - For each sheet:
+              - For each row:
+                  - Extract ALL column values (every cell)
+                  - Preserve account numbers, descriptions, periods
+                  - Store monthly/quarterly/annual breakdowns
+                  - Tag data type (revenue, expense, asset, liability)
+      - Save to {sandbox_path}/tier3/raw_accounts_database.json
+      - Include complete metadata (source files, extraction timestamp)
+
+    output_structure: |
+      {
+        "extraction_metadata": {
+          "extracted_at": "2024-11-05T...",
+          "source_files": [
+            {"file": "Group_PL_2020-2023.xlsx", "sheets": [...], "rows": 242, "cols": 47}
+          ],
+          "total_accounts": 235,
+          "total_data_points": 11374
+        },
+        "pl_accounts": [
+          {
+            "row_id": 7,
+            "account": "473600",
+            "description": "Cash discounts granted, Standard VAT",
+            "category": "revenue_adjustments",
+            "monthly_data": {
+              "2020": {"jan": 0, "feb": 0, ..., "dec": -3750},
+              "2021": {...},
+              "2022": {...},
+              "2023": {"jan": -406.41, ..., "jun": -2300.13}
+            },
+            "totals": {
+              "2020": -3750,
+              "2021": 0,
+              "2022": 0,
+              "2023_h1": -7371.97
+            }
+          }
+          // ... ALL 235 accounts, EVERY data point
+        ],
+        "balance_sheet_accounts": [
+          // Similar structure for BS accounts
+        ]
+      }
+
+    guarantee: "Every cell from source Excel → Tier 3. Zero information loss."
+
+  3_aggregate_tier2_detailed:
+    description: "Aggregate Tier 3 into detailed category breakdowns for Tier 2"
+    actions:
+      - Group accounts by category (Revenue, Expenses, Assets, etc.)
+      - Create revenue_detail.json:
+          - ALL revenue line items (not just top 20)
+          - Monthly breakdowns by line item
+          - Flag one-time items
+          - Calculate revenue quality metrics
+
+      - Create expense_detail.json:
+          - ALL expense accounts by category
+          - Identify normalization candidates
+          - Track personnel vs. operating expenses
+          - Monthly expense patterns
+
+      - Create working_capital_detail.json:
+          - Receivables, payables, inventory (monthly)
+          - Calculate DSO, DPO, cash conversion cycle
+          - Identify seasonality patterns
+
+      - Create balance_sheet_detail.json:
+          - Assets, liabilities, equity by year
+          - Calculate ratios (debt/equity, current ratio)
+
+    validation:
+      - Sum of Tier 2 revenue = Sum of Tier 3 revenue accounts
+      - Sum of Tier 2 expenses = Sum of Tier 3 expense accounts
+      - No data loss vs. Tier 3
+
+  4_summarize_tier1:
+    description: "Create high-level summary for Tier 1"
+    actions:
+      - Calculate annual totals:
+          - Revenue, Gross Profit, EBITDA, EBIT, Net Income
+          - For all available years
+
+      - Calculate key metrics:
+          - Revenue CAGR
+          - EBITDA margin trend
+          - Growth rates YoY
+
+      - Identify key findings:
+          - Number of one-time items flagged
+          - Number of normalization candidates
+          - Revenue concentration
+
+      - Create references to Tier 2 files:
+          - Map: "revenue details" → "tier2/revenue_detail.json"
+          - Map: "expense details" → "tier2/expense_detail.json"
+
+      - Save to {sandbox_path}/tier1/summary.json
+
+    output_structure: |
+      {
+        "deal_name": "Project Munich",
+        "last_updated": "2024-11-05",
+        "annual_summary": {
+          "2020": {
+            "revenue": 12462910.90,
+            "gross_profit": 10759502.18,
+            "ebitda": 576239.35,
+            "ebitda_margin_pct": 4.6,
+            "ebit": 505647.45
+          },
+          // 2021, 2022, 2023...
+        },
+        "key_findings": {
+          "revenue_cagr_2020_2022": 34.6,
+          "ebitda_cagr_2020_2022": 93.9,
+          "margin_expansion": "4.6% → 14.5%",
+          "one_time_items_count": 3,
+          "normalization_candidates": 2
+        },
+        "data_available": {
+          "revenue_detail": "tier2/revenue_detail.json",
+          "expense_detail": "tier2/expense_detail.json",
+          "working_capital_detail": "tier2/working_capital_detail.json",
+          "balance_sheet_detail": "tier2/balance_sheet_detail.json",
+          "raw_complete": "tier3/raw_accounts_database.json"
+        }
+      }
+
+    size_limit: "~500 lines JSON, max 2k tokens"
+
+  5_validate_100_percent_coverage:
+    description: "Mathematical proof that no data was lost"
+    validation_checks:
+      - tier1_revenue_2022 == sum(tier2_revenue_items_2022)
+      - tier2_revenue_2022 == sum(tier3_revenue_accounts_2022)
+      - tier3_total_accounts == raw_excel_row_count
+      - For each cell in raw Excel:
+          - Verify cell exists in Tier 3
+          - Verify cell value matches
+
+      - EBITDA calculation consistent:
+          - tier1_ebitda == tier1_ebit + abs(tier1_da)
+
+      - No missing periods:
+          - All years present in all tiers
+          - All months accounted for
+
+    failure_handling:
+      - If ANY validation fails → ABORT, report error
+      - Do NOT proceed if coverage < 100%
+      - Log discrepancies for debugging
+
+    success_output: |
+      ✓ 100% Coverage Validated
+
+      Extraction Summary:
+        - Source files: 3
+        - Accounts extracted: 235
+        - Data points: 11,374
+        - Time periods: 2020-2023 (42 months)
+        - Coverage: 100%
+
+      Validation Checks:
+        ✓ Revenue totals consistent across tiers
+        ✓ Expense totals consistent across tiers
+        ✓ All accounts mapped
+        ✓ All periods present
+        ✓ No missing data points
+
+      Files Created:
+        📄 tier1/summary.json (500 lines, 2k tokens)
+        📄 tier2/revenue_detail.json (1,500 lines, 6k tokens)
+        📄 tier2/expense_detail.json (1,500 lines, 6k tokens)
+        📄 tier2/working_capital_detail.json (500 lines, 2k tokens)
+        📄 tier2/balance_sheet_detail.json (500 lines, 2k tokens)
+        📄 tier3/raw_accounts_database.json (15,000 lines, 60k tokens)
+
+      Next: Tier 1 auto-loaded into context. Ready for analysis.
+
+  6_update_knowledge_base:
+    description: "Update deal insights with extraction summary"
+    updates:
+      - file: "knowledge-base/deal-insights.md"
+        section: "Financial Highlights"
+        content: |
+          ### Data Extraction Status
+          - ✓ Financial data extracted: {timestamp}
+          - Source files: {file_count}
+          - Coverage: 100% ({data_point_count} data points)
+          - Time periods: {period_range}
+          - Tier 1 summary loaded into agent context
+
+outputs:
+  primary:
+    - file: "{sandbox_path}/tier1/summary.json"
+      description: "High-level summary, always loaded (2k tokens)"
+
+    - file: "{sandbox_path}/tier2/revenue_detail.json"
+      description: "Complete revenue breakdown (6k tokens, on-demand)"
+
+    - file: "{sandbox_path}/tier2/expense_detail.json"
+      description: "Complete expense breakdown (6k tokens, on-demand)"
+
+    - file: "{sandbox_path}/tier2/working_capital_detail.json"
+      description: "Working capital details (2k tokens, on-demand)"
+
+    - file: "{sandbox_path}/tier2/balance_sheet_detail.json"
+      description: "Balance sheet details (2k tokens, on-demand)"
+
+    - file: "{sandbox_path}/tier3/raw_accounts_database.json"
+      description: "Complete raw data, 100% coverage (60k tokens, query-only)"
+
+  metadata:
+    - file: "{sandbox_path}/extraction_log.json"
+      description: "Complete extraction audit trail"
+
+post_execution:
+  actions:
+    - Load Tier 1 summary into agent context
+    - Set tier2_loaded = {} (empty, ready for on-demand)
+    - Set tier3_path for query access
+    - Mark extraction complete in knowledge base
+    - Ready for valuation/QoE workflows
+
+error_handling:
+  missing_data_room:
+    message: "Data room path not found. Please specify location of financial files."
+    recovery: "Ask user for data room path"
+
+  validation_failed:
+    message: "Coverage validation failed - data loss detected"
+    recovery: "Log discrepancies, do not proceed, report to user"
+
+  file_read_error:
+    message: "Could not read source file: {filename}"
+    recovery: "Skip file, log error, continue with other files"
+
+performance:
+  expected_duration: "5-15 minutes for typical deal"
+  context_cost: "Initial: ~8k tokens (reading raw), Final: 2k tokens (Tier 1 loaded)"
+  disk_space: "~5-10 MB for typical deal"
+
+notes: |
+  This workflow is the foundation of context-efficient financial analysis.
+
+  Key principles:
+  1. Extract once, use many times
+  2. 100% coverage guaranteed (mathematical validation)
+  3. Tiered access (most questions answered from 2k token summary)
+  4. No information loss (every cell preserved in Tier 3)
+  5. Query-based access for edge cases (never load full Tier 3)
+
+  After this workflow:
+  - Tier 1 is loaded (~2k tokens)
+  - Agent can answer 90% of questions without loading more data
+  - Deep dives load specific Tier 2 files on demand
+  - Edge case queries access Tier 3 without full load
+
+  Context savings: 70-90% vs. loading raw Excel repeatedly

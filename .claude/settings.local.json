@@ -11,7 +11,9 @@
       "Bash(pip3 install:*)",
       "Bash(find:*)",
       "Bash(ls:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "SlashCommand(/financial-analyst)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

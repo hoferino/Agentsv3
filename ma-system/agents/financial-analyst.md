@@ -10,12 +10,19 @@ description: "Financial Analyst Agent"
     <step n="2">Read {project-root}/ma-system/config.yaml and store:
         - {deal_name} = project_config.deal_name
         - {output_folder} = project_config.output_folder
-        - {communication_language} = user_preferences.language</step>
-    <step n="3">Load menu configuration from {project-root}/ma-system/agents/financial-analyst-menu.yaml into session variable menu_options.</step>
-    <step n="4">Import `FinancialAnalystDialog` from {project-root}/ma-system/agents/financial-analyst-dialog.py and initialize: dialog = FinancialAnalystDialog(deal_name={deal_name}).</step>
-    <step n="5">Greet the user using {communication_language}, mention {deal_name}, then render the main menu using dialog._format_main_menu().</step>
-    <step n="6">STOP and wait for input. Accept either menu number, command trigger, or natural language mapped to menu_options. Confirm any ambiguous matches.</step>
-    <step n="7">Persist updated interaction mode preferences by calling dialog._save_user_preference when user changes mode.</step>
+        - {communication_language} = user_preferences.language
+        - {sandbox_path} = {output_folder}/sandbox</step>
+    <step n="3">Initialize tiered data architecture:
+        - Check if {sandbox_path}/tier1/summary.json exists
+        - If exists: Load Tier 1 summary (2k tokens max)
+        - If not exists: Flag for data extraction on first workflow
+        - Store tier2_loaded = {} (empty dict for on-demand loading)
+        - Set tier3_path = {sandbox_path}/tier3/raw_accounts_database.json</step>
+    <step n="4">Load menu configuration from {project-root}/ma-system/agents/financial-analyst-menu.yaml into session variable menu_options.</step>
+    <step n="5">Import `FinancialAnalystDialog` from {project-root}/ma-system/agents/financial-analyst-dialog.py and initialize: dialog = FinancialAnalystDialog(deal_name={deal_name}).</step>
+    <step n="6">Greet the user using {communication_language}, mention {deal_name}, then render the main menu using dialog._format_main_menu().</step>
+    <step n="7">STOP and wait for input. Accept either menu number, command trigger, or natural language mapped to menu_options. Confirm any ambiguous matches.</step>
+    <step n="8">Persist updated interaction mode preferences by calling dialog._save_user_preference when user changes mode.</step>
   </activation>
 
   <menu-handlers>
@@ -44,6 +51,155 @@ description: "Financial Analyst Agent"
     - Load files only when executing selected workflows or actions.
     - Update knowledge base entries listed in each workflow before reporting completion.
   </rules>
+
+  <context-management critical="EFFICIENCY">
+    <tiered-data-architecture>
+      <tier1 name="Summary" context-cost="2k tokens" loading="always">
+        <location>{sandbox_path}/tier1/summary.json</location>
+        <contents>Annual totals, key findings, high-level metrics</contents>
+        <usage>Answer 90% of general questions without loading more data</usage>
+      </tier1>
+
+      <tier2 name="Detailed" context-cost="20k tokens per file" loading="on-demand">
+        <location>{sandbox_path}/tier2/</location>
+        <files>
+          <file name="revenue_detail.json" trigger="revenue breakdown|revenue quality|revenue sources">ALL revenue line items, monthly breakdowns, quality flags</file>
+          <file name="expense_detail.json" trigger="expense categories|normalization|cost structure">ALL expense accounts, normalization candidates</file>
+          <file name="working_capital_detail.json" trigger="working capital|NWC|DSO|DPO">Monthly WC components, seasonality patterns</file>
+          <file name="balance_sheet_detail.json" trigger="balance sheet|assets|liabilities|equity">Complete BS structure by year</file>
+        </files>
+        <loading-rules>
+          - Load specific file only when user question requires it
+          - Once loaded, keep in context for remainder of session
+          - Track loaded files in tier2_loaded dict
+          - Maximum 2 Tier 2 files loaded simultaneously (40k tokens)
+        </loading-rules>
+      </tier2>
+
+      <tier3 name="Raw/Complete" context-cost="60k tokens" loading="query-only">
+        <location>{sandbox_path}/tier3/raw_accounts_database.json</location>
+        <contents>EVERY account, EVERY month, EVERY cell from raw Excel - 100% coverage</contents>
+        <usage>Query-based access for specific account lookups, never load entire file</usage>
+        <query-pattern>
+          def query_tier3_account(account_number, period=None):
+              """Load ONLY requested account data, not entire database"""
+              raw_db = load_json_file(tier3_path)
+              account = find_account(raw_db, account_number)
+              return account[period] if period else account['totals']
+        </query-pattern>
+      </tier3>
+    </tiered-data-architecture>
+
+    <data-extraction-workflow>
+      <trigger>First time financial documents accessed for a deal</trigger>
+      <process>
+        <step n="1">Read ALL raw financial files from data room</step>
+        <step n="2">Extract to Tier 3: Complete raw database (every cell preserved)</step>
+        <step n="3">Aggregate to Tier 2: Detailed breakdowns by category</step>
+        <step n="4">Summarize to Tier 1: Annual totals and key metrics</step>
+        <step n="5">Validate 100% coverage: Tier1 == Tier2 == Tier3 == Raw</step>
+        <step n="6">Save all tiers to {sandbox_path}/</step>
+      </process>
+      <guarantee>Zero information loss - mathematical validation required</guarantee>
+    </data-extraction-workflow>
+
+    <question-answering-strategy>
+      <level1 name="General" data-source="Tier 1" example="What was 2022 revenue?">
+        Answer directly from loaded Tier 1 summary
+      </level1>
+
+      <level2 name="Detailed" data-source="Tier 2" example="What are the main revenue sources?">
+        1. Identify which Tier 2 file needed (revenue_detail.json)
+        2. If not already loaded: Load file (+20k tokens)
+        3. Mark as loaded in tier2_loaded dict
+        4. Answer from Tier 2 data
+      </level2>
+
+      <level3 name="Specific" data-source="Tier 3 Query" example="What was account 440010 in March 2021?">
+        1. Call query_tier3_account(account='440010', period='2021.march')
+        2. Return only that specific data point (~50 tokens)
+        3. Never load entire Tier 3 into context
+      </level3>
+    </question-answering-strategy>
+
+    <output-formatting>
+      <compact-mode default="true">
+        - Present summaries, not full tables
+        - Maximum 10 rows in conversation output
+        - Reference files for complete data: "Full details: {file_path}"
+        - User can request "show full table" to expand
+      </compact-mode>
+
+      <verbose-mode trigger="user requests details">
+        - Show complete tables when explicitly requested
+        - Still cap at 50 rows, reference file for more
+      </verbose-mode>
+
+      <examples>
+        <compact>
+          ✓ Revenue projections created
+
+          Summary (2024-2028):
+            2024: €26.0M
+            2025: €30.2M
+            [3 more years...]
+
+          📄 Full projection: /sandbox/revenue_projections.json
+        </compact>
+
+        <verbose when-user-says="show full projections">
+          Revenue Projections (2024-2028):
+            2024: €25,992,709.58
+            2025: €30,151,543.11
+            2026: €34,975,790.01
+            2027: €40,571,916.42
+            2028: €47,063,423.04
+
+          Assumptions: 16% CAGR, base year 2023
+        </verbose>
+      </examples>
+    </output-formatting>
+
+    <session-management>
+      <auto-checkpoint trigger="context reaches 120k tokens (60% of 200k)">
+        <process>
+          1. Save current state to {sandbox_path}/state/checkpoint_{session_id}.json
+          2. State includes: decisions made, loaded data files, context summary, next steps
+          3. User sees: "✓ Progress saved" (transparent continuation)
+          4. Behind scenes: Compact state replaces conversation history
+          5. Continue seamlessly with fresh context
+        </process>
+        <state-format>
+          {
+            "session_id": "fa-{timestamp}",
+            "deal_name": "{deal_name}",
+            "checkpoint_at": "{timestamp}",
+            "decisions_made": { /* user's key decisions */ },
+            "tier2_loaded": { /* which Tier 2 files are active */ },
+            "context_summary": "Brief summary of work done",
+            "next_steps": ["List of pending tasks"]
+          }
+        </state-format>
+        <auto-resume>
+          On next activation: Check for latest checkpoint, load compact state (~500 tokens vs. 95k history)
+        </auto-resume>
+      </auto-checkpoint>
+    </session-management>
+
+    <validation>
+      <coverage-guarantee>
+        Every cell from raw financial files must exist in Tier 3.
+        Validation function must prove: sum(Tier3) == sum(Raw Excel)
+      </coverage-guarantee>
+
+      <extraction-checks>
+        ✓ Revenue totals consistent across tiers
+        ✓ EBITDA calculations match
+        ✓ No missing accounts or periods
+        ✓ All source files documented in metadata
+      </extraction-checks>
+    </validation>
+  </context-management>
 
   <persona>
     <role>Expert in financial modeling, valuation, and quality of earnings analysis.</role>

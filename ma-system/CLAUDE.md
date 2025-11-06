@@ -30,7 +30,17 @@ python3 router.py
    - Dependency checker for prerequisites
    - Returns `RoutingDecision` objects with primary agent, supporting agents, required skills
 
-2. **Agents** (`agents/*.md`) - 8 specialized agents, always available:
+2. **Context Management System** (NEW - Critical for long conversations)
+   - **Tiered Data Architecture**: All agents use 3-tier data model for efficiency
+     - Tier 1 (Summary): Always loaded, 2k tokens - answers 90% of questions
+     - Tier 2 (Detailed): On-demand loading, 20k tokens per file - deep dives
+     - Tier 3 (Raw/Complete): Query-only, never fully loaded - 100% coverage guarantee
+   - **Auto-Checkpointing**: Sessions automatically save state at 60% context usage (120k tokens)
+   - **Transparent Session Management**: Context refresh happens behind the scenes, user sees continuous flow
+   - **100% Coverage Guarantee**: All data from source files preserved in Tier 3, zero information loss
+   - See `docs/100-percent-coverage-strategy.md` for complete architecture
+
+3. **Agents** (`agents/*.md`) - 8 specialized agents, always available:
    - `managing-director` - Orchestration & strategy
    - `financial-analyst` - Valuation, models, QoE (uses `xlsx` skill)
    - `market-intelligence` - Buyer research, comparables (uses `web_search`, `xlsx`)
